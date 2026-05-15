@@ -1,0 +1,16 @@
+services:
+  classpulse:
+    build: .
+    container_name: classpulse
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      CLASSROOM_HOST: 0.0.0.0
+      CLASSROOM_PORT: 8000
+      CLASSROOM_DATA_DIR: /data
+    volumes:
+      - classpulse-data:/data
+
+volumes:
+  classpulse-data:

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ClassPulse</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">CP</div>
+          <div>
+            <h1>ClassPulse</h1>
+            <p>Live classroom quizzes</p>
+          </div>
+        </div>
+        <div class="view-switch" role="tablist" aria-label="Mode">
+          <button id="hostTab" class="switch-button active" type="button" role="tab" aria-selected="true">Host</button>
+          <button id="learnerTab" class="switch-button" type="button" role="tab" aria-selected="false">Learner</button>
+        </div>
+      </header>
+
+      <main class="main-grid">
+        <section id="hostView" class="view active" aria-labelledby="hostTab">
+          <div class="host-grid">
+            <section class="panel editor-panel">
+              <div class="panel-heading">
+                <div>
+                  <span class="eyebrow">Quiz</span>
+                  <h2>Session Builder</h2>
+                </div>
+                <button id="loadSampleButton" class="icon-button" type="button" title="Load starter quiz">R</button>
+              </div>
+
+              <form id="quizForm">
+                <label>
+                  <span>Title</span>
+                  <input id="quizTitle" maxlength="120" autocomplete="off">
+                </label>
+
+                <div id="questionList" class="question-list"></div>
+
+                <div class="form-actions">
+                  <button id="addQuestionButton" class="secondary" type="button">Add Question</button>
+                  <button id="createSessionButton" class="primary" type="submit">Create Session</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="panel host-panel">
+              <div class="panel-heading">
+                <div>
+                  <span class="eyebrow">Live</span>
+                  <h2>Control Room</h2>
+                </div>
+                <div id="hostPhaseBadge" class="phase-badge">No session</div>
+              </div>
+
+              <div class="session-code">
+                <span>PIN</span>
+                <strong id="sessionPin">------</strong>
+                <button id="copyJoinButton" class="secondary compact" type="button" disabled>Copy Link</button>
+              </div>
+
+              <div class="control-row">
+                <button id="startButton" class="primary" type="button" disabled>Start</button>
+                <button id="revealButton" class="secondary" type="button" disabled>Reveal</button>
+                <button id="nextButton" class="secondary" type="button" disabled>Next</button>
+                <button id="finishButton" class="danger" type="button" disabled>Finish</button>
+              </div>
+
+              <div class="status-grid">
+                <div>
+                  <span class="metric-label">Players</span>
+                  <strong id="playerCount">0</strong>
+                </div>
+                <div>
+                  <span class="metric-label">Question</span>
+                  <strong id="questionProgress">-</strong>
+                </div>
+                <div>
+                  <span class="metric-label">Timer</span>
+                  <strong id="timerValue">-</strong>
+                </div>
+              </div>
+
+              <section class="live-question">
+                <div class="panel-heading small">
+                  <div>
+                    <span class="eyebrow">Prompt</span>
+                    <h3 id="hostQuestionText">Create a session to begin.</h3>
+                  </div>
+                </div>
+                <div id="hostAnswerChart" class="answer-chart"></div>
+              </section>
+
+              <div class="tables-grid">
+                <section>
+                  <div class="mini-heading">Players</div>
+                  <div id="playerList" class="list empty">No players yet</div>
+                </section>
+                <section>
+                  <div class="mini-heading">Leaderboard</div>
+                  <div id="leaderboardList" class="list empty">No scores yet</div>
+                </section>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section id="learnerView" class="view" aria-labelledby="learnerTab">
+          <div class="learner-grid">
+            <section class="panel join-panel">
+              <div class="panel-heading">
+                <div>
+                  <span class="eyebrow">Join</span>
+                  <h2>Enter The Room</h2>
+                </div>
+              </div>
+
+              <form id="joinForm">
+                <label>
+                  <span>Session PIN</span>
+                  <input id="joinPin" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="000000">
+                </label>
+                <label>
+                  <span>Name</span>
+                  <input id="playerName" maxlength="40" autocomplete="name" placeholder="Your name">
+                </label>
+                <button id="joinButton" class="primary" type="submit">Join Session</button>
+              </form>
+            </section>
+
+            <section class="panel play-panel">
+              <div class="panel-heading">
+                <div>
+                  <span id="learnerPhase" class="eyebrow">Waiting</span>
+                  <h2 id="learnerTitle">No active session</h2>
+                </div>
+                <div id="learnerScore" class="score-pill">0 pts</div>
+              </div>
+
+              <div class="question-stage">
+                <div id="learnerTimer" class="timer-ring">--</div>
+                <h3 id="learnerQuestion">Join a session to see questions here.</h3>
+                <div id="answerGrid" class="answer-grid"></div>
+                <div id="learnerFeedback" class="feedback"></div>
+              </div>
+
+              <section>
+                <div class="mini-heading">Top Scores</div>
+                <div id="learnerLeaderboard" class="list empty">Waiting for players</div>
+              </section>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <template id="questionTemplate">
+      <article class="question-editor">
+        <div class="question-toolbar">
+          <strong class="question-number">Question</strong>
+          <button class="icon-button remove-question" type="button" title="Remove question">X</button>
+        </div>
+        <label>
+          <span>Prompt</span>
+          <textarea class="question-text" rows="2" maxlength="260"></textarea>
+        </label>
+        <div class="settings-row">
+          <label>
+            <span>Seconds</span>
+            <input class="question-time" type="number" min="5" max="120" step="5">
+          </label>
+          <label>
+            <span>Points</span>
+            <input class="question-points" type="number" min="100" max="2000" step="100">
+          </label>
+        </div>
+        <div class="answers-editor"></div>
+      </article>
+    </template>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
