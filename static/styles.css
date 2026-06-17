@@ -31,6 +31,7 @@ body {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
   letter-spacing: 0;
@@ -41,6 +42,7 @@ button {
 }
 
 input,
+select,
 textarea {
   width: 100%;
   min-width: 0;
@@ -57,6 +59,7 @@ textarea {
 
 button:focus-visible,
 input:focus,
+select:focus,
 textarea:focus {
   outline: 3px solid rgba(8, 127, 111, 0.22);
   outline-offset: 1px;
@@ -242,6 +245,29 @@ label span {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--panel-soft);
+}
+
+.question-bank {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(40, 100, 180, 0.22);
+  border-radius: 8px;
+  background: #f7fafc;
+}
+
+.bank-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.bank-fields,
+.bank-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .question-toolbar,
@@ -646,6 +672,8 @@ button:disabled {
   .status-grid,
   .tables-grid,
   .answer-grid,
+  .bank-fields,
+  .bank-actions,
   .form-actions,
   .session-code {
     grid-template-columns: 1fr;

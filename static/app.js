@@ -5,6 +5,12 @@ const els = {
   learnerView: document.querySelector("#learnerView"),
   toast: document.querySelector("#toast"),
   quizForm: document.querySelector("#quizForm"),
+  moduleSelect: document.querySelector("#moduleSelect"),
+  lessonTitle: document.querySelector("#lessonTitle"),
+  savedLessonSelect: document.querySelector("#savedLessonSelect"),
+  refreshBankButton: document.querySelector("#refreshBankButton"),
+  loadLessonButton: document.querySelector("#loadLessonButton"),
+  saveLessonButton: document.querySelector("#saveLessonButton"),
   quizTitle: document.querySelector("#quizTitle"),
   questionList: document.querySelector("#questionList"),
   questionTemplate: document.querySelector("#questionTemplate"),
@@ -41,6 +47,8 @@ const els = {
 
 const starterQuiz = {
   title: "Starter Check",
+  module: 1,
+  lessonTitle: "Starter Check",
   questions: [
     {
       text: "Which number is a prime number?",
@@ -79,6 +87,7 @@ const starterQuiz = {
 };
 
 const state = {
+  savedLessons: [],
   host: {
     session: null,
     token: "",
@@ -136,6 +145,8 @@ function setBusy(button, busy, label) {
 
 function setQuizEditor(quiz) {
   els.quizTitle.value = quiz.title || "Untitled Quiz";
+  els.moduleSelect.value = String(quiz.module || 1);
+  els.lessonTitle.value = quiz.lessonTitle || quiz.title || "Untitled Lesson";
   els.questionList.replaceChildren();
   for (const question of quiz.questions || []) {
     addQuestion(question);
@@ -223,10 +234,74 @@ function collectQuiz() {
     };
   });
 
+  const lessonTitle = els.lessonTitle.value.trim() || els.quizTitle.value.trim() || "Untitled Lesson";
+  const module = Number(els.moduleSelect.value || 1);
   return {
-    title: els.quizTitle.value.trim() || "Untitled Quiz",
+    title: els.quizTitle.value.trim() || lessonTitle,
+    module,
+    lessonTitle,
     questions,
   };
+}
+
+function renderSavedLessons() {
+  els.savedLessonSelect.replaceChildren();
+  if (!state.savedLessons.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "No saved lessons yet";
+    els.savedLessonSelect.append(option);
+    return;
+  }
+
+  for (const lesson of state.savedLessons) {
+    const option = document.createElement("option");
+    option.value = lesson.id;
+    option.textContent = `M${lesson.module}: ${lesson.lessonTitle || lesson.title} (${lesson.questionCount})`;
+    els.savedLessonSelect.append(option);
+  }
+}
+
+async function refreshQuestionBank() {
+  const data = await api("/api/quizzes");
+  state.savedLessons = data.quizzes || [];
+  renderSavedLessons();
+}
+
+async function saveLessonToBank() {
+  setBusy(els.saveLessonButton, true, "Save To Bank");
+  try {
+    const quiz = collectQuiz();
+    const result = await api("/api/quizzes", {
+      method: "POST",
+      body: JSON.stringify(quiz),
+    });
+    await refreshQuestionBank();
+    els.savedLessonSelect.value = result.quiz.id;
+    showToast("Lesson saved to question bank.");
+  } catch (error) {
+    showToast(error.message);
+  } finally {
+    setBusy(els.saveLessonButton, false, "Save To Bank");
+  }
+}
+
+async function loadSelectedLesson() {
+  const quizId = els.savedLessonSelect.value;
+  if (!quizId) {
+    showToast("Choose a saved lesson first.");
+    return;
+  }
+  setBusy(els.loadLessonButton, true, "Load Lesson");
+  try {
+    const data = await api(`/api/quizzes/${encodeURIComponent(quizId)}`);
+    setQuizEditor(data.quiz);
+    showToast("Lesson loaded.");
+  } catch (error) {
+    showToast(error.message);
+  } finally {
+    setBusy(els.loadLessonButton, false, "Load Lesson");
+  }
 }
 
 function phaseLabel(phase) {
@@ -584,6 +659,15 @@ els.hostTab.addEventListener("click", () => switchView("host"));
 els.learnerTab.addEventListener("click", () => switchView("learner"));
 els.addQuestionButton.addEventListener("click", () => addQuestion());
 els.loadSampleButton.addEventListener("click", loadStarterQuiz);
+els.refreshBankButton.addEventListener("click", () => refreshQuestionBank().catch((error) => showToast(error.message)));
+els.saveLessonButton.addEventListener("click", saveLessonToBank);
+els.loadLessonButton.addEventListener("click", loadSelectedLesson);
+els.savedLessonSelect.addEventListener("change", async () => {
+  const lesson = state.savedLessons.find((item) => item.id === els.savedLessonSelect.value);
+  if (!lesson) return;
+  els.moduleSelect.value = String(lesson.module || 1);
+  els.lessonTitle.value = lesson.lessonTitle || lesson.title || "";
+});
 els.quizForm.addEventListener("submit", createSession);
 els.copyJoinButton.addEventListener("click", copyJoinLink);
 els.startButton.addEventListener("click", () => hostCommand("start"));
@@ -595,6 +679,7 @@ els.joinPin.addEventListener("input", () => {
   els.joinPin.value = els.joinPin.value.replace(/\D/g, "").slice(0, 6);
 });
 
-loadStarterQuiz()
+refreshQuestionBank()
+  .then(loadStarterQuiz)
   .then(restoreFromUrl)
   .catch((error) => showToast(error.message));

@@ -58,12 +58,20 @@ def clean_text(value: Any, default: str, limit: int) -> str:
     return (text or default)[:limit]
 
 
+def lesson_quiz_id(module: int, lesson_title: str) -> str:
+    cleaned = "".join(character.lower() if character.isalnum() else "-" for character in lesson_title)
+    slug = "-".join(part for part in cleaned.split("-") if part)[:48] or "lesson"
+    return f"module-{module}-{slug}"
+
+
 def default_quiz() -> dict[str, Any]:
     return normalize_quiz(
         {
             "id": "starter_check",
             "title": "Starter Check",
             "description": "A quick classroom readiness quiz.",
+            "module": 1,
+            "lessonTitle": "Starter Check",
             "questions": [
                 {
                     "text": "Which number is a prime number?",
@@ -113,11 +121,15 @@ def normalize_quiz(raw: dict[str, Any]) -> dict[str, Any]:
     if len(raw_questions) > MAX_QUESTIONS:
         raise ApiError(HTTPStatus.BAD_REQUEST, f"Use {MAX_QUESTIONS} questions or fewer.")
 
-    quiz_id = clean_text(raw.get("id"), new_id("quiz"), 80)
+    module = clamp_int(raw.get("module"), 1, 5, 1)
+    lesson_title = clean_text(raw.get("lessonTitle") or raw.get("title"), "Untitled Lesson", 120)
+    quiz_id = clean_text(raw.get("id"), lesson_quiz_id(module, lesson_title), 80)
     quiz = {
         "id": quiz_id,
         "title": clean_text(raw.get("title"), "Untitled Quiz", 120),
         "description": clean_text(raw.get("description"), "", 240),
+        "module": module,
+        "lessonTitle": lesson_title,
         "questions": [],
         "updatedAt": now_ms(),
     }
@@ -547,12 +559,14 @@ class ClassroomHandler(BaseHTTPRequestHandler):
                     "id": quiz["id"],
                     "title": quiz["title"],
                     "description": quiz.get("description", ""),
+                    "module": int(quiz.get("module", 1)),
+                    "lessonTitle": quiz.get("lessonTitle", quiz["title"]),
                     "questionCount": len(quiz.get("questions", [])),
                     "updatedAt": quiz.get("updatedAt", 0),
                 }
                 for quiz in QUIZZES.values()
             ]
-        quizzes.sort(key=lambda item: item["title"].lower())
+        quizzes.sort(key=lambda item: (item["module"], item["lessonTitle"].lower(), item["title"].lower()))
         self.send_json({"quizzes": quizzes})
 
     def handle_get_quiz(self, path: str) -> None:

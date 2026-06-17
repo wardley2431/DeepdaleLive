@@ -35,6 +35,45 @@
               </div>
 
               <form id="quizForm">
+                <section class="question-bank">
+                  <div class="bank-header">
+                    <div>
+                      <span class="eyebrow">Question Bank</span>
+                      <h3>Saved Lessons</h3>
+                    </div>
+                    <button id="refreshBankButton" class="icon-button" type="button" title="Refresh saved lessons">R</button>
+                  </div>
+
+                  <div class="bank-fields">
+                    <label>
+                      <span>Module</span>
+                      <select id="moduleSelect">
+                        <option value="1">Module 1</option>
+                        <option value="2">Module 2</option>
+                        <option value="3">Module 3</option>
+                        <option value="4">Module 4</option>
+                        <option value="5">Module 5</option>
+                      </select>
+                    </label>
+                    <label>
+                      <span>Lesson title</span>
+                      <input id="lessonTitle" maxlength="120" autocomplete="off" placeholder="e.g. Norman Conquest">
+                    </label>
+                  </div>
+
+                  <label>
+                    <span>Saved lesson</span>
+                    <select id="savedLessonSelect">
+                      <option value="">No saved lessons yet</option>
+                    </select>
+                  </label>
+
+                  <div class="bank-actions">
+                    <button id="loadLessonButton" class="secondary" type="button">Load Lesson</button>
+                    <button id="saveLessonButton" class="secondary" type="button">Save To Bank</button>
+                  </div>
+                </section>
+
                 <label>
                   <span>Title</span>
                   <input id="quizTitle" maxlength="120" autocomplete="off">
