@@ -48,7 +48,7 @@ const els = {
 
 const starterQuiz = {
   title: "Starter Check",
-  module: 1,
+  module: "SCC MOD1",
   lessonTitle: "Starter Check",
   questions: [
     {
@@ -146,7 +146,7 @@ function setBusy(button, busy, label) {
 
 function setQuizEditor(quiz) {
   els.quizTitle.value = quiz.title || "Untitled Quiz";
-  els.moduleSelect.value = String(quiz.module || 1);
+  els.moduleSelect.value = normalizeModule(quiz.module);
   els.lessonTitle.value = quiz.lessonTitle || quiz.title || "Untitled Lesson";
   els.questionList.replaceChildren();
   for (const question of quiz.questions || []) {
@@ -160,7 +160,7 @@ function setQuizEditor(quiz) {
 
 function clearQuizEditor() {
   els.quizTitle.value = "";
-  els.moduleSelect.value = "1";
+  els.moduleSelect.value = "SCC MOD1";
   els.lessonTitle.value = "";
   els.questionList.replaceChildren();
   addQuestion();
@@ -244,7 +244,7 @@ function collectQuiz() {
   });
 
   const lessonTitle = els.lessonTitle.value.trim() || els.quizTitle.value.trim() || "Untitled Lesson";
-  const module = Number(els.moduleSelect.value || 1);
+  const module = normalizeModule(els.moduleSelect.value);
   return {
     title: els.quizTitle.value.trim() || lessonTitle,
     module,
@@ -253,20 +253,42 @@ function collectQuiz() {
   };
 }
 
+function normalizeModule(value) {
+  const text = String(value || "").trim().toUpperCase();
+  const legacy = {
+    "1": "SCC MOD1",
+    "2": "SCC MOD2",
+    "3": "SCC MOD3",
+    "4": "SCC MOD4",
+    "5": "SCC MOD5",
+    "MODULE 1": "SCC MOD1",
+    "MODULE 2": "SCC MOD2",
+    "MODULE 3": "SCC MOD3",
+    "MODULE 4": "SCC MOD4",
+    "MODULE 5": "SCC MOD5",
+  };
+  const module = legacy[text] || text;
+  return ["SCC MOD1", "SCC MOD2", "SCC MOD3", "SCC MOD4", "SCC MOD5", "ALS", "SAPC"].includes(module)
+    ? module
+    : "SCC MOD1";
+}
+
 function renderSavedLessons() {
   els.savedLessonSelect.replaceChildren();
-  if (!state.savedLessons.length) {
+  const activeModule = normalizeModule(els.moduleSelect.value);
+  const lessons = state.savedLessons.filter((lesson) => normalizeModule(lesson.module) === activeModule);
+  if (!lessons.length) {
     const option = document.createElement("option");
     option.value = "";
-    option.textContent = "No saved lessons yet";
+    option.textContent = `No saved lessons for ${activeModule}`;
     els.savedLessonSelect.append(option);
     return;
   }
 
-  for (const lesson of state.savedLessons) {
+  for (const lesson of lessons) {
     const option = document.createElement("option");
     option.value = lesson.id;
-    option.textContent = `M${lesson.module}: ${lesson.lessonTitle || lesson.title} (${lesson.questionCount})`;
+    option.textContent = `${lesson.lessonTitle || lesson.title} (${lesson.questionCount})`;
     els.savedLessonSelect.append(option);
   }
 }
@@ -324,7 +346,7 @@ async function deleteSelectedLesson() {
     return;
   }
   const lesson = state.savedLessons.find((item) => item.id === quizId);
-  const label = lesson ? `M${lesson.module}: ${lesson.lessonTitle || lesson.title}` : "this lesson";
+  const label = lesson ? `${normalizeModule(lesson.module)}: ${lesson.lessonTitle || lesson.title}` : "this lesson";
   if (!window.confirm(`Delete ${label} from the question bank?`)) {
     return;
   }
@@ -708,9 +730,10 @@ els.deleteLessonButton.addEventListener("click", deleteSelectedLesson);
 els.savedLessonSelect.addEventListener("change", async () => {
   const lesson = state.savedLessons.find((item) => item.id === els.savedLessonSelect.value);
   if (!lesson) return;
-  els.moduleSelect.value = String(lesson.module || 1);
+  els.moduleSelect.value = normalizeModule(lesson.module);
   els.lessonTitle.value = lesson.lessonTitle || lesson.title || "";
 });
+els.moduleSelect.addEventListener("change", renderSavedLessons);
 els.quizForm.addEventListener("submit", createSession);
 els.copyJoinButton.addEventListener("click", copyJoinLink);
 els.startButton.addEventListener("click", () => hostCommand("start"));

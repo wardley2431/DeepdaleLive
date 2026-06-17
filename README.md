@@ -416,7 +416,7 @@ The host screen includes a reusable question bank.
 Each saved lesson has:
 
 ```text
-Module: 1, 2, 3, 4, or 5
+Module: SCC MOD1, SCC MOD2, SCC MOD3, SCC MOD4, SCC MOD5, ALS, or SAPC
 Lesson title: for example "Norman Conquest"
 Questions and answers
 ```
@@ -432,9 +432,10 @@ To save questions for reuse:
 To reuse a lesson later:
 
 1. Open the host screen.
-2. Pick the lesson from Saved lesson.
-3. Click Load Lesson.
-4. Click Create Session when ready.
+2. Choose the module. The saved lesson dropdown only shows lessons for that module.
+3. Pick the lesson from Saved lesson.
+4. Click Load Lesson.
+5. Click Create Session when ready.
 
 To delete an accidental saved lesson:
 

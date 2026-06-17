@@ -24,6 +24,7 @@ STATE_FILE = DATA_DIR / "state.json"
 MAX_QUESTIONS = 40
 MAX_ANSWERS = 6
 STATE_VERSION = 1
+MODULE_OPTIONS = {"SCC MOD1", "SCC MOD2", "SCC MOD3", "SCC MOD4", "SCC MOD5", "ALS", "SAPC"}
 
 LOCK = threading.RLock()
 QUIZZES: dict[str, dict[str, Any]] = {}
@@ -58,10 +59,35 @@ def clean_text(value: Any, default: str, limit: int) -> str:
     return (text or default)[:limit]
 
 
-def lesson_quiz_id(module: int, lesson_title: str) -> str:
+def normalize_module(value: Any) -> str:
+    text = str(value or "").strip().upper()
+    legacy_map = {
+        "1": "SCC MOD1",
+        "2": "SCC MOD2",
+        "3": "SCC MOD3",
+        "4": "SCC MOD4",
+        "5": "SCC MOD5",
+        "MODULE 1": "SCC MOD1",
+        "MODULE 2": "SCC MOD2",
+        "MODULE 3": "SCC MOD3",
+        "MODULE 4": "SCC MOD4",
+        "MODULE 5": "SCC MOD5",
+    }
+    module = legacy_map.get(text, text)
+    return module if module in MODULE_OPTIONS else "SCC MOD1"
+
+
+def module_sort_key(module: str) -> int:
+    order = ["SCC MOD1", "SCC MOD2", "SCC MOD3", "SCC MOD4", "SCC MOD5", "ALS", "SAPC"]
+    return order.index(module) if module in order else len(order)
+
+
+def lesson_quiz_id(module: str, lesson_title: str) -> str:
+    module_slug = "".join(character.lower() if character.isalnum() else "-" for character in module)
+    module_slug = "-".join(part for part in module_slug.split("-") if part)
     cleaned = "".join(character.lower() if character.isalnum() else "-" for character in lesson_title)
     slug = "-".join(part for part in cleaned.split("-") if part)[:48] or "lesson"
-    return f"module-{module}-{slug}"
+    return f"{module_slug}-{slug}"
 
 
 def default_quiz() -> dict[str, Any]:
@@ -70,7 +96,7 @@ def default_quiz() -> dict[str, Any]:
             "id": "starter_check",
             "title": "Starter Check",
             "description": "A quick classroom readiness quiz.",
-            "module": 1,
+            "module": "SCC MOD1",
             "lessonTitle": "Starter Check",
             "questions": [
                 {
@@ -121,7 +147,7 @@ def normalize_quiz(raw: dict[str, Any]) -> dict[str, Any]:
     if len(raw_questions) > MAX_QUESTIONS:
         raise ApiError(HTTPStatus.BAD_REQUEST, f"Use {MAX_QUESTIONS} questions or fewer.")
 
-    module = clamp_int(raw.get("module"), 1, 5, 1)
+    module = normalize_module(raw.get("module"))
     lesson_title = clean_text(raw.get("lessonTitle") or raw.get("title"), "Untitled Lesson", 120)
     quiz_id = clean_text(raw.get("id"), lesson_quiz_id(module, lesson_title), 80)
     quiz = {
@@ -572,7 +598,7 @@ class ClassroomHandler(BaseHTTPRequestHandler):
                     "id": quiz["id"],
                     "title": quiz["title"],
                     "description": quiz.get("description", ""),
-                    "module": int(quiz.get("module", 1)),
+                    "module": normalize_module(quiz.get("module")),
                     "lessonTitle": quiz.get("lessonTitle", quiz["title"]),
                     "questionCount": len(quiz.get("questions", [])),
                     "updatedAt": quiz.get("updatedAt", 0),
@@ -580,7 +606,7 @@ class ClassroomHandler(BaseHTTPRequestHandler):
                 for quiz in QUIZZES.values()
                 if quiz["id"] != "starter_check"
             ]
-        quizzes.sort(key=lambda item: (item["module"], item["lessonTitle"].lower(), item["title"].lower()))
+        quizzes.sort(key=lambda item: (module_sort_key(item["module"]), item["lessonTitle"].lower(), item["title"].lower()))
         self.send_json({"quizzes": quizzes})
 
     def handle_get_quiz(self, path: str) -> None:
