@@ -158,6 +158,14 @@ function setQuizEditor(quiz) {
   numberQuestions();
 }
 
+function clearQuizEditor() {
+  els.quizTitle.value = "";
+  els.moduleSelect.value = "1";
+  els.lessonTitle.value = "";
+  els.questionList.replaceChildren();
+  addQuestion();
+}
+
 function addQuestion(question = {}) {
   const node = els.questionTemplate.content.firstElementChild.cloneNode(true);
   node.querySelector(".question-text").value = question.text || "";
@@ -715,6 +723,6 @@ els.joinPin.addEventListener("input", () => {
 });
 
 refreshQuestionBank()
-  .then(loadStarterQuiz)
+  .then(clearQuizEditor)
   .then(restoreFromUrl)
   .catch((error) => showToast(error.message));

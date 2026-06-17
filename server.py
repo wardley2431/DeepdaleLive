@@ -578,6 +578,7 @@ class ClassroomHandler(BaseHTTPRequestHandler):
                     "updatedAt": quiz.get("updatedAt", 0),
                 }
                 for quiz in QUIZZES.values()
+                if quiz["id"] != "starter_check"
             ]
         quizzes.sort(key=lambda item: (item["module"], item["lessonTitle"].lower(), item["title"].lower()))
         self.send_json({"quizzes": quizzes})
