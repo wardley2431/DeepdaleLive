@@ -11,6 +11,7 @@ const els = {
   refreshBankButton: document.querySelector("#refreshBankButton"),
   loadLessonButton: document.querySelector("#loadLessonButton"),
   saveLessonButton: document.querySelector("#saveLessonButton"),
+  deleteLessonButton: document.querySelector("#deleteLessonButton"),
   quizTitle: document.querySelector("#quizTitle"),
   questionList: document.querySelector("#questionList"),
   questionTemplate: document.querySelector("#questionTemplate"),
@@ -301,6 +302,35 @@ async function loadSelectedLesson() {
     showToast(error.message);
   } finally {
     setBusy(els.loadLessonButton, false, "Load Lesson");
+  }
+}
+
+async function deleteSelectedLesson() {
+  const quizId = els.savedLessonSelect.value;
+  if (!quizId) {
+    showToast("Choose a saved lesson first.");
+    return;
+  }
+  if (quizId === "starter_check") {
+    showToast("The starter quiz cannot be deleted.");
+    return;
+  }
+  const lesson = state.savedLessons.find((item) => item.id === quizId);
+  const label = lesson ? `M${lesson.module}: ${lesson.lessonTitle || lesson.title}` : "this lesson";
+  if (!window.confirm(`Delete ${label} from the question bank?`)) {
+    return;
+  }
+  setBusy(els.deleteLessonButton, true, "Delete Lesson");
+  try {
+    await api(`/api/quizzes/${encodeURIComponent(quizId)}`, {
+      method: "DELETE",
+    });
+    await refreshQuestionBank();
+    showToast("Lesson deleted.");
+  } catch (error) {
+    showToast(error.message);
+  } finally {
+    setBusy(els.deleteLessonButton, false, "Delete Lesson");
   }
 }
 
@@ -653,6 +683,10 @@ async function restoreFromUrl() {
     await pollLearner();
     startLearnerPolling();
   }
+
+  if (!sessionId && !token && !playerId) {
+    switchView("learner");
+  }
 }
 
 els.hostTab.addEventListener("click", () => switchView("host"));
@@ -662,6 +696,7 @@ els.loadSampleButton.addEventListener("click", loadStarterQuiz);
 els.refreshBankButton.addEventListener("click", () => refreshQuestionBank().catch((error) => showToast(error.message)));
 els.saveLessonButton.addEventListener("click", saveLessonToBank);
 els.loadLessonButton.addEventListener("click", loadSelectedLesson);
+els.deleteLessonButton.addEventListener("click", deleteSelectedLesson);
 els.savedLessonSelect.addEventListener("change", async () => {
   const lesson = state.savedLessons.find((item) => item.id === els.savedLessonSelect.value);
   if (!lesson) return;

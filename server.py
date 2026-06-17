@@ -552,6 +552,19 @@ class ClassroomHandler(BaseHTTPRequestHandler):
         except Exception as exc:  # pragma: no cover - defensive HTTP boundary
             self.send_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
 
+    def do_DELETE(self) -> None:
+        parsed = urlparse(self.path)
+        path = unquote(parsed.path)
+        try:
+            if path.startswith("/api/quizzes/"):
+                self.handle_delete_quiz(path)
+                return
+            self.send_json({"error": "Not found"}, status=HTTPStatus.NOT_FOUND)
+        except ApiError as exc:
+            self.send_json({"error": exc.message}, status=exc.status)
+        except Exception as exc:  # pragma: no cover - defensive HTTP boundary
+            self.send_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
+
     def handle_list_quizzes(self) -> None:
         with LOCK:
             quizzes = [
@@ -576,6 +589,17 @@ class ClassroomHandler(BaseHTTPRequestHandler):
             if not quiz:
                 raise ApiError(HTTPStatus.NOT_FOUND, "Quiz was not found.")
             self.send_json({"quiz": quiz})
+
+    def handle_delete_quiz(self, path: str) -> None:
+        quiz_id = path.strip("/").split("/", 2)[2]
+        if quiz_id == "starter_check":
+            raise ApiError(HTTPStatus.BAD_REQUEST, "The starter quiz cannot be deleted.")
+        with LOCK:
+            if quiz_id not in QUIZZES:
+                raise ApiError(HTTPStatus.NOT_FOUND, "Quiz was not found.")
+            QUIZZES.pop(quiz_id, None)
+            save_state()
+        self.send_json({"deleted": True, "quizId": quiz_id})
 
     def handle_create_quiz(self) -> None:
         payload = self.read_json()

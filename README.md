@@ -436,6 +436,15 @@ To reuse a lesson later:
 3. Click Load Lesson.
 4. Click Create Session when ready.
 
+To delete an accidental saved lesson:
+
+1. Open the host screen.
+2. Pick the lesson from Saved lesson.
+3. Click Delete Lesson.
+4. Confirm the browser prompt.
+
+The built-in starter quiz cannot be deleted.
+
 The question bank is stored in the same local JSON state file as the rest of the app.
 
 In Docker this is stored in the `classpulse-data` volume by default:
