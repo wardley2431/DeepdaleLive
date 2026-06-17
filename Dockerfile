@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+﻿FROM python:3.13-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -11,11 +11,11 @@ WORKDIR /app
 COPY server.py README.md ./
 COPY static ./static
 
-RUN useradd --create-home --shell /usr/sbin/nologin classpulse \
+RUN useradd --create-home --shell /usr/sbin/nologin deepdalelive \
     && mkdir -p /data \
-    && chown -R classpulse:classpulse /app /data
+    && chown -R deepdalelive:deepdalelive /app /data
 
-USER classpulse
+USER deepdalelive
 
 EXPOSE 8000
 VOLUME ["/data"]

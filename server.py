@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 import mimetypes
@@ -528,7 +528,7 @@ def submit_answer(session: dict[str, Any], payload: dict[str, Any]) -> dict[str,
 
 
 class ClassroomHandler(BaseHTTPRequestHandler):
-    server_version = "ClassPulse/0.1"
+    server_version = "DeepdaleLIVE/0.1"
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
@@ -770,7 +770,7 @@ def parse_args() -> tuple[str, int]:
 def run(host: str = "127.0.0.1", port: int = 8000) -> None:
     load_state()
     server = ThreadingHTTPServer((host, port), ClassroomHandler)
-    print(f"ClassPulse running at http://{host}:{port}")
+    print(f"DeepdaleLIVE running at http://{host}:{port}")
     print(f"State file: {STATE_FILE}")
     print("Press Ctrl+C to stop.")
     try:

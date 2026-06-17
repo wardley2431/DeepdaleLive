@@ -97,23 +97,26 @@ p {
   min-width: 0;
 }
 
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.22), transparent 42%),
-    linear-gradient(135deg, var(--green), var(--blue));
-  color: #fff;
-  font-weight: 900;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+.brand-logo {
+  display: block;
+  width: clamp(170px, 22vw, 280px);
+  height: 48px;
+  object-fit: contain;
+  object-position: left center;
 }
 
 .brand h1 {
   font-size: 21px;
   line-height: 1.1;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 .brand p,

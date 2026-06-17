@@ -1,6 +1,6 @@
-# DeepdaleLive / ClassPulse Offline VM Guide
+﻿# DeepdaleLIVE Offline VM Guide
 
-DeepdaleLive is a standalone classroom quiz platform. A teacher creates a live quiz room, learners join with a PIN, and answers/scores update in the browser.
+DeepdaleLIVE is a standalone classroom quiz platform. A teacher creates a live quiz room, learners join with a PIN, and answers/scores update in the browser.
 
 This guide is written for running it inside a virtual machine or Raspberry Pi environment that has Docker installed but does not have internet access.
 
@@ -176,7 +176,7 @@ docker ps
 You should see a container named:
 
 ```text
-classpulse
+deepdalelive
 ```
 
 with a port mapping like:
@@ -258,9 +258,9 @@ Replace `docker-compose.yml` with:
 
 ```yaml
 services:
-  classpulse:
+  deepdalelive:
     image: python:3.13-slim
-    container_name: classpulse
+    container_name: deepdalelive
     restart: unless-stopped
     working_dir: /app
     command: python server.py
@@ -272,10 +272,10 @@ services:
       CLASSROOM_DATA_DIR: /data
     volumes:
       - ./:/app
-      - classpulse-data:/data
+      - deepdalelive-data:/data
 
 volumes:
-  classpulse-data:
+  deepdalelive-data:
 ```
 
 Then start:
@@ -448,7 +448,7 @@ The built-in starter quiz cannot be deleted.
 
 The question bank is stored in the same local JSON state file as the rest of the app.
 
-In Docker this is stored in the `classpulse-data` volume by default:
+In Docker this is stored in the `deepdalelive-data` volume by default:
 
 ```text
 /data/state.json
