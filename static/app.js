@@ -715,7 +715,7 @@ async function restoreFromUrl() {
   }
 
   if (!sessionId && !token && !playerId) {
-    switchView("learner");
+    switchView(window.location.pathname.startsWith("/host") ? "host" : "learner");
   }
 }
 
