@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DeepdaleLIVE Trainee</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="app-shell trainee-shell">
+      <header class="topbar trainee-topbar">
+        <div class="brand">
+          <img class="brand-logo" src="/logo.png" alt="DeepdaleLIVE">
+          <h1 class="sr-only">DeepdaleLIVE Trainee</h1>
+        </div>
+      </header>
+
+      <main class="main-grid">
+        <section class="trainee-page" aria-label="Trainee quiz entry">
+          <div class="learner-grid">
+            <section class="panel join-panel">
+              <div class="panel-heading">
+                <div>
+                  <span class="eyebrow">Join</span>
+                  <h2>Enter The Room</h2>
+                </div>
+              </div>
+
+              <form id="joinForm">
+                <label>
+                  <span>Session PIN</span>
+                  <input id="joinPin" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="000000">
+                </label>
+                <label>
+                  <span>Name</span>
+                  <input id="playerName" maxlength="40" autocomplete="name" placeholder="Your name">
+                </label>
+                <button id="joinButton" class="primary" type="submit">Join Session</button>
+              </form>
+            </section>
+
+            <section class="panel play-panel">
+              <div class="panel-heading">
+                <div>
+                  <span id="learnerPhase" class="eyebrow">Waiting</span>
+                  <h2 id="learnerTitle">No active session</h2>
+                </div>
+                <div id="learnerScore" class="score-pill">0 pts</div>
+              </div>
+
+              <div class="question-stage">
+                <div id="learnerTimer" class="timer-ring">--</div>
+                <h3 id="learnerQuestion">Enter the session PIN to join.</h3>
+                <div id="answerGrid" class="answer-grid"></div>
+                <div id="learnerFeedback" class="feedback"></div>
+              </div>
+
+              <section>
+                <div class="mini-heading">Top Scores</div>
+                <div id="learnerLeaderboard" class="list empty">Waiting for players</div>
+              </section>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="/trainee.js" defer></script>
+  </body>
+</html>

@@ -727,6 +727,8 @@ class ClassroomHandler(BaseHTTPRequestHandler):
         return payload
 
     def serve_static(self, path: str) -> None:
+        if path in {"/trainee", "/trainee/"}:
+            path = "/trainee.html"
         if path in {"", "/"} or not Path(path).suffix:
             path = "/index.html"
         requested = (STATIC_DIR / path.lstrip("/")).resolve()

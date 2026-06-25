@@ -409,6 +409,22 @@ docker compose up -d --build
 
 Everything runs locally inside the VM/container.
 
+## Trainee-Only Page
+
+The normal page still includes both host and learner modes:
+
+```text
+http://SERVER-IP:8000/
+```
+
+For trainees, use the learner-only page:
+
+```text
+http://SERVER-IP:8000/trainee
+```
+
+This page has no host tab or host controls. It joins the same live sessions created from the normal host page, using the same session PIN.
+
 ## Question Bank
 
 The host screen includes a reusable question bank.
