@@ -372,7 +372,7 @@ def snapshot_session(
         "player": player,
         "playerAnswer": player_answer,
         "host": {
-            "joinUrl": f"/play?pin={session['pin']}",
+            "joinUrl": f"/?pin={session['pin']}",
             "hostUrl": f"/host?session={session['id']}&token={session['hostToken']}",
         }
         if is_host
@@ -647,7 +647,7 @@ class ClassroomHandler(BaseHTTPRequestHandler):
                 "pin": session["pin"],
                 "hostToken": session["hostToken"],
                 "hostUrl": f"/host?session={session['id']}&token={session['hostToken']}",
-                "joinUrl": f"/play?pin={session['pin']}",
+                "joinUrl": f"/?pin={session['pin']}",
                 "session": snapshot,
             },
             status=HTTPStatus.CREATED,
@@ -727,10 +727,12 @@ class ClassroomHandler(BaseHTTPRequestHandler):
         return payload
 
     def serve_static(self, path: str) -> None:
-        if path in {"/trainee", "/trainee/"}:
+        if path in {"", "/", "/trainee", "/trainee/"}:
             path = "/trainee.html"
-        if path in {"", "/"} or not Path(path).suffix:
+        if path in {"/host", "/host/"}:
             path = "/index.html"
+        if not Path(path).suffix:
+            path = "/trainee.html"
         requested = (STATIC_DIR / path.lstrip("/")).resolve()
         static_root = STATIC_DIR.resolve()
         try:

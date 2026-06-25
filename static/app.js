@@ -608,7 +608,7 @@ async function joinSession(event) {
     window.history.replaceState(
       {},
       "",
-      `/play?pin=${result.session.pin}&session=${result.session.id}&player=${result.player.id}`
+      `/?pin=${result.session.pin}&session=${result.session.id}&player=${result.player.id}`
     );
     showToast("Joined session.");
   } catch (error) {

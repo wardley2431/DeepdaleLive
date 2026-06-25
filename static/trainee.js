@@ -162,7 +162,7 @@ async function joinSession(event) {
     window.history.replaceState(
       {},
       "",
-      `/trainee?pin=${result.session.pin}&session=${result.session.id}&player=${result.player.id}`
+      `/?pin=${result.session.pin}&session=${result.session.id}&player=${result.player.id}`
     );
     showToast("Joined session.");
   } catch (error) {

@@ -409,21 +409,23 @@ docker compose up -d --build
 
 Everything runs locally inside the VM/container.
 
-## Trainee-Only Page
+## Page Access
 
-The normal page still includes both host and learner modes:
+The trainee/student page is the default landing page:
 
 ```text
 http://SERVER-IP:8000/
 ```
 
-For trainees, use the learner-only page:
+The host setup and control page is:
 
 ```text
-http://SERVER-IP:8000/trainee
+http://SERVER-IP:8000/host
 ```
 
-This page has no host tab or host controls. It joins the same live sessions created from the normal host page, using the same session PIN.
+The student page has no host tab or host controls. It joins the same live sessions created from the host page, using the same session PIN.
+
+Old `/trainee` links still work as an alias for the student page.
 
 ## Question Bank
 
